@@ -195,6 +195,30 @@ const SurveyForm = () => {
 
   // Toggle between edit and view mode
   const toggleEditMode = () => {
+    // If switching from edit mode back to view mode, reset form data to original
+    if (!viewMode) {
+      // If we have survey data, refresh it from the household data
+      if (household.status === 'completed' && household.survey) {
+        const survey = household.survey;
+        setFormData({
+          focalPoint: survey.focalPoint || '',
+          focalPointImage: null, // We can't populate file input
+          familyMembers: survey.familyMembers.length > 0 
+            ? survey.familyMembers.map(member => ({
+                firstName: member.firstName,
+                lastName: member.lastName,
+                birthDate: new Date(member.birthDate).toISOString().split('T')[0]
+              }))
+            : [{ firstName: '', lastName: '', birthDate: '' }],
+          carCount: survey.carCount || 0,
+          hasPets: survey.hasPets ? 'yes' : 'no',
+          petCount: survey.petCount || 0,
+          housingType: survey.housingType || '',
+          environmentalPractices: survey.environmentalPractices || []
+        });
+      }
+    }
+    
     setViewMode(!viewMode);
   };
 
@@ -211,12 +235,23 @@ const SurveyForm = () => {
             type="button" 
             className="btn"
             style={{ 
-              backgroundColor: viewMode ? 'var(--primary-color)' : 'var(--text-light)', 
-              color: 'white'
+              backgroundColor: viewMode ? 'var(--primary-color)' : 'var(--danger-color)', 
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
             }}
             onClick={toggleEditMode}
           >
-            {viewMode ? 'Edit Survey' : 'View Only'}
+            {viewMode ? 'Edit Survey' : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Cancel Editing
+              </>
+            )}
           </button>
         )}
       </div>
@@ -554,14 +589,14 @@ const SurveyForm = () => {
               : (submitting ? 'Submitting...' : 'Submit Survey')}
           </button>
           
-          {viewMode && household.status === 'completed' && (
+          {!viewMode && (
             <button
               type="button"
               className="btn"
-              style={{ marginLeft: '10px', backgroundColor: 'var(--primary-color)', color: 'white' }}
+              style={{ marginLeft: '10px', backgroundColor: 'var(--danger-color)', color: 'white' }}
               onClick={toggleEditMode}
             >
-              Edit Survey
+              Cancel Changes
             </button>
           )}
         </div>
