@@ -195,7 +195,7 @@ const HouseholdList = () => {
       {/* Search and filters */}
       <div className="filters-container" style={{ 
         display: 'flex', 
-        gap: '15px', 
+        gap: '60px', 
         marginBottom: '20px',
         alignItems: 'center',
         flexWrap: 'wrap'
