@@ -104,11 +104,27 @@ const ImportHouseholds = ({ onImportComplete }) => {
 
   return (
     <div className="card">
-      <div className="card-header">
+      <div className="card-header d-flex justify-content-between align-items-center flex-wrap">
         <h2>Import Households</h2>
+        <button 
+          type="button" 
+          className="btn" 
+          style={{ backgroundColor: '#3498db', color: 'white' }}
+          onClick={handleDownloadSample}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download Sample JSON
+        </button>
       </div>
       <div className="card-body">
         <p>Upload a JSON file with household data to quickly add multiple households.</p>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-light)' }}>
+          Not sure about the format? Use the "Download Sample JSON" button above to get a template.
+        </p>
         
         <div className="form-group">
           <label className="form-label">JSON File</label>
@@ -119,20 +135,10 @@ const ImportHouseholds = ({ onImportComplete }) => {
             className="form-control"
             disabled={isLoading}
           />
-          <div style={{ marginTop: '10px' }}>
-            <button 
-              type="button" 
-              className="btn" 
-              style={{ backgroundColor: '#3498db', color: 'white', marginRight: '10px' }}
-              onClick={handleDownloadSample}
-            >
-              Download Sample JSON
-            </button>
-          </div>
         </div>
         
         {error && (
-          <div style={{ color: '#e74c3c', margin: '10px 0', padding: '10px', backgroundColor: '#fadbd8', borderRadius: '4px' }}>
+          <div style={{ color: '#e74c3c', margin: '15px 0', padding: '10px', backgroundColor: '#fadbd8', borderRadius: '4px' }}>
             Error: {error}
           </div>
         )}
