@@ -9,6 +9,7 @@ const SurveyForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [household, setHousehold] = useState(null);
+  const [viewMode, setViewMode] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -49,8 +50,10 @@ const SurveyForm = () => {
         const data = await getHousehold(id);
         setHousehold(data);
         
-        // If survey is already completed, pre-fill the form
+        // If survey is already completed, pre-fill the form and set view mode
         if (data.status === 'completed' && data.survey) {
+          setViewMode(true);
+          
           // Convert database data format to form format
           const survey = data.survey;
           setFormData({
@@ -83,6 +86,8 @@ const SurveyForm = () => {
   }, [id]);
 
   const handleInputChange = (e) => {
+    if (viewMode) return; // Prevent changes in view mode
+    
     const { name, value, type, checked } = e.target;
     
     if (name === 'hasPets') {
@@ -113,6 +118,8 @@ const SurveyForm = () => {
   };
 
   const handleImageChange = (e) => {
+    if (viewMode) return; // Prevent changes in view mode
+    
     const file = e.target.files[0];
     if (file) {
       setFormData(prev => ({
@@ -123,6 +130,8 @@ const SurveyForm = () => {
   };
 
   const handleFamilyMemberChange = (index, e) => {
+    if (viewMode) return; // Prevent changes in view mode
+    
     const { name, value } = e.target;
     const updatedMembers = [...formData.familyMembers];
     updatedMembers[index] = {
@@ -137,6 +146,8 @@ const SurveyForm = () => {
   };
 
   const addFamilyMember = () => {
+    if (viewMode) return; // Prevent changes in view mode
+    
     setFormData(prev => ({
       ...prev,
       familyMembers: [...prev.familyMembers, { firstName: '', lastName: '', birthDate: '' }]
@@ -144,6 +155,8 @@ const SurveyForm = () => {
   };
 
   const removeFamilyMember = (index) => {
+    if (viewMode) return; // Prevent changes in view mode
+    
     if (formData.familyMembers.length > 1) {
       const updatedMembers = [...formData.familyMembers];
       updatedMembers.splice(index, 1);
@@ -157,6 +170,11 @@ const SurveyForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (viewMode) {
+      navigate('/');
+      return;
+    }
     
     try {
       setSubmitting(true);
@@ -175,14 +193,32 @@ const SurveyForm = () => {
     }
   };
 
+  // Toggle between edit and view mode
+  const toggleEditMode = () => {
+    setViewMode(!viewMode);
+  };
+
   if (loading && !household) return <p>Loading survey...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!household) return <p>Household not found</p>;
 
   return (
     <div>
-      <div className="card-header">
+      <div className="card-header d-flex justify-content-between align-items-center">
         <h1>Household Survey: {household.familyName}</h1>
+        {household.status === 'completed' && (
+          <button 
+            type="button" 
+            className="btn"
+            style={{ 
+              backgroundColor: viewMode ? 'var(--primary-color)' : 'var(--text-light)', 
+              color: 'white'
+            }}
+            onClick={toggleEditMode}
+          >
+            {viewMode ? 'Edit Survey' : 'View Only'}
+          </button>
+        )}
       </div>
       
       <div className="card">
@@ -204,38 +240,62 @@ const SurveyForm = () => {
           <div className="card-body">
             <div className="form-group">
               <label className="form-label">First Name</label>
-              <input
-                type="text"
-                name="focalPoint"
-                className="form-control"
-                value={formData.focalPoint}
-                onChange={handleInputChange}
-                required
-              />
+              {viewMode ? (
+                <p>{formData.focalPoint}</p>
+              ) : (
+                <input
+                  type="text"
+                  name="focalPoint"
+                  className="form-control"
+                  value={formData.focalPoint}
+                  onChange={handleInputChange}
+                  required
+                />
+              )}
             </div>
             
             <div className="form-group">
-              <label className="form-label">Upload Picture</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="form-control"
-              />
-              {formData.focalPointImage && (
-                <div style={{ marginTop: '10px' }}>
-                  <img
-                    src={URL.createObjectURL(formData.focalPointImage)}
-                    alt="Focal point preview"
-                    style={{ maxWidth: '200px', maxHeight: '200px' }}
+              <label className="form-label">Picture</label>
+              {viewMode ? (
+                household.survey && household.survey.focalPointImage ? (
+                  <div>
+                    <img 
+                      src={`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/${household.survey.focalPointImage}`}
+                      alt="Focal point"
+                      style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }}
+                    />
+                  </div>
+                ) : (
+                  <p>No image provided</p>
+                )
+              ) : (
+                <>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="form-control"
                   />
-                </div>
-              )}
-              {household.survey && household.survey.focalPointImage && !formData.focalPointImage && (
-                <div style={{ marginTop: '10px' }}>
-                  <p>Current image: {household.survey.focalPointImage}</p>
-                  {/* Add image path to src if you have an endpoint serving images */}
-                </div>
+                  {formData.focalPointImage && (
+                    <div style={{ marginTop: '10px' }}>
+                      <img
+                        src={URL.createObjectURL(formData.focalPointImage)}
+                        alt="Focal point preview"
+                        style={{ maxWidth: '200px', maxHeight: '200px' }}
+                      />
+                    </div>
+                  )}
+                  {household.survey && household.survey.focalPointImage && !formData.focalPointImage && (
+                    <div style={{ marginTop: '10px' }}>
+                      <p>Current image: {household.survey.focalPointImage}</p>
+                      <img 
+                        src={`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/${household.survey.focalPointImage}`}
+                        alt="Current focal point"
+                        style={{ maxWidth: '200px', maxHeight: '200px' }}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -247,69 +307,95 @@ const SurveyForm = () => {
             <h2>Family Members</h2>
           </div>
           <div className="card-body">
-            {formData.familyMembers.map((member, index) => (
-              <div key={index} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #eee', borderRadius: '5px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <h3>Member #{index + 1}</h3>
-                  {formData.familyMembers.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeFamilyMember(index)}
-                      className="btn"
-                      style={{ backgroundColor: '#e74c3c', color: 'white' }}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-                
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  <div className="form-group" style={{ flex: '1', minWidth: '200px' }}>
-                    <label className="form-label">First Name</label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      className="form-control"
-                      value={member.firstName}
-                      onChange={(e) => handleFamilyMemberChange(index, e)}
-                      required
-                    />
+            {viewMode ? (
+              <div>
+                {formData.familyMembers.length > 0 ? (
+                  <div style={{ display: 'grid', gap: '15px' }}>
+                    {formData.familyMembers.map((member, index) => (
+                      <div key={index} style={{ padding: '15px', border: '1px solid #eee', borderRadius: '5px' }}>
+                        <h3>Member #{index + 1}</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                          <div>
+                            <strong>Name:</strong> {member.firstName} {member.lastName}
+                          </div>
+                          <div>
+                            <strong>Birth Date:</strong> {new Date(member.birthDate).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="form-group" style={{ flex: '1', minWidth: '200px' }}>
-                    <label className="form-label">Last Name</label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      className="form-control"
-                      value={member.lastName}
-                      onChange={(e) => handleFamilyMemberChange(index, e)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group" style={{ flex: '1', minWidth: '200px' }}>
-                    <label className="form-label">Birth Date</label>
-                    <input
-                      type="date"
-                      name="birthDate"
-                      className="form-control"
-                      value={member.birthDate}
-                      onChange={(e) => handleFamilyMemberChange(index, e)}
-                      required
-                    />
-                  </div>
-                </div>
+                ) : (
+                  <p>No family members listed</p>
+                )}
               </div>
-            ))}
-            
-            <button
-              type="button"
-              onClick={addFamilyMember}
-              className="btn btn-primary"
-            >
-              Add Family Member
-            </button>
+            ) : (
+              <>
+                {formData.familyMembers.map((member, index) => (
+                  <div key={index} style={{ marginBottom: '20px', padding: '15px', border: '1px solid #eee', borderRadius: '5px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <h3>Member #{index + 1}</h3>
+                      {formData.familyMembers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeFamilyMember(index)}
+                          className="btn"
+                          style={{ backgroundColor: '#e74c3c', color: 'white' }}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      <div className="form-group" style={{ flex: '1', minWidth: '200px' }}>
+                        <label className="form-label">First Name</label>
+                        <input
+                          type="text"
+                          name="firstName"
+                          className="form-control"
+                          value={member.firstName}
+                          onChange={(e) => handleFamilyMemberChange(index, e)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="form-group" style={{ flex: '1', minWidth: '200px' }}>
+                        <label className="form-label">Last Name</label>
+                        <input
+                          type="text"
+                          name="lastName"
+                          className="form-control"
+                          value={member.lastName}
+                          onChange={(e) => handleFamilyMemberChange(index, e)}
+                          required
+                        />
+                      </div>
+                      
+                      <div className="form-group" style={{ flex: '1', minWidth: '200px' }}>
+                        <label className="form-label">Birth Date</label>
+                        <input
+                          type="date"
+                          name="birthDate"
+                          className="form-control"
+                          value={member.birthDate}
+                          onChange={(e) => handleFamilyMemberChange(index, e)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                <button
+                  type="button"
+                  onClick={addFamilyMember}
+                  className="btn btn-primary"
+                >
+                  Add Family Member
+                </button>
+              </>
+            )}
           </div>
         </div>
         
@@ -320,60 +406,70 @@ const SurveyForm = () => {
           </div>
           <div className="card-body">
             <div className="form-group">
-              <label className="form-label">How many cars do they own?</label>
-              <input
-                type="number"
-                name="carCount"
-                className="form-control"
-                min="0"
-                value={formData.carCount}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">Do they have any pets?</label>
-              <div>
-                <label style={{ marginRight: '20px' }}>
-                  <input
-                    type="radio"
-                    name="hasPets"
-                    value="yes"
-                    checked={formData.hasPets === 'yes'}
-                    onChange={handleInputChange}
-                    style={{ marginRight: '5px' }}
-                  />
-                  Yes
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="hasPets"
-                    value="no"
-                    checked={formData.hasPets === 'no'}
-                    onChange={handleInputChange}
-                    style={{ marginRight: '5px' }}
-                  />
-                  No
-                </label>
-              </div>
-            </div>
-            
-            {formData.hasPets === 'yes' && (
-              <div className="form-group">
-                <label className="form-label">How many pets?</label>
+              <label className="form-label">Cars owned</label>
+              {viewMode ? (
+                <p>{formData.carCount}</p>
+              ) : (
                 <input
                   type="number"
-                  name="petCount"
+                  name="carCount"
                   className="form-control"
-                  min="1"
-                  value={formData.petCount}
+                  min="0"
+                  value={formData.carCount}
                   onChange={handleInputChange}
                   required
                 />
-              </div>
-            )}
+              )}
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Pets</label>
+              {viewMode ? (
+                <p>{formData.hasPets === 'yes' ? `Yes (${formData.petCount})` : 'No'}</p>
+              ) : (
+                <>
+                  <div>
+                    <label style={{ marginRight: '20px' }}>
+                      <input
+                        type="radio"
+                        name="hasPets"
+                        value="yes"
+                        checked={formData.hasPets === 'yes'}
+                        onChange={handleInputChange}
+                        style={{ marginRight: '5px' }}
+                      />
+                      Yes
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="hasPets"
+                        value="no"
+                        checked={formData.hasPets === 'no'}
+                        onChange={handleInputChange}
+                        style={{ marginRight: '5px' }}
+                      />
+                      No
+                    </label>
+                  </div>
+                  
+                  {formData.hasPets === 'yes' && (
+                    <div className="form-group" style={{ marginTop: '10px' }}>
+                      <label className="form-label">How many pets?</label>
+                      <input
+                        type="number"
+                        name="petCount"
+                        className="form-control"
+                        min="1"
+                        value={formData.petCount}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
         
@@ -384,19 +480,23 @@ const SurveyForm = () => {
           </div>
           <div className="card-body">
             <div className="form-group">
-              <label className="form-label">What type of housing is it?</label>
-              <select
-                name="housingType"
-                className="form-control"
-                value={formData.housingType}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="">Select housing type</option>
-                {housingOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
+              <label className="form-label">Housing Type</label>
+              {viewMode ? (
+                <p>{formData.housingType}</p>
+              ) : (
+                <select
+                  name="housingType"
+                  className="form-control"
+                  value={formData.housingType}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select housing type</option>
+                  {housingOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
         </div>
@@ -409,32 +509,61 @@ const SurveyForm = () => {
           <div className="card-body">
             <div className="form-group">
               <label className="form-label">
-                Which of these environmentally friendly practices does your household engage in regularly?
+                Environmental practices this household engages in regularly
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '10px' }}>
-                {environmentalPractices.map(practice => (
-                  <label key={practice} style={{ display: 'flex', alignItems: 'center' }}>
-                    <input
-                      type="checkbox"
-                      name="environmentalPractices"
-                      value={practice}
-                      checked={formData.environmentalPractices.includes(practice)}
-                      onChange={handleInputChange}
-                      style={{ marginRight: '10px' }}
-                    />
-                    {practice}
-                  </label>
-                ))}
-              </div>
+              {viewMode ? (
+                formData.environmentalPractices.length > 0 ? (
+                  <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
+                    {formData.environmentalPractices.map(practice => (
+                      <li key={practice}>{practice}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>None selected</p>
+                )
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '10px' }}>
+                  {environmentalPractices.map(practice => (
+                    <label key={practice} style={{ display: 'flex', alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        name="environmentalPractices"
+                        value={practice}
+                        checked={formData.environmentalPractices.includes(practice)}
+                        onChange={handleInputChange}
+                        style={{ marginRight: '10px' }}
+                      />
+                      {practice}
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
         
         {/* Submit Button */}
         <div style={{ marginTop: '20px', marginBottom: '40px' }}>
-          <button type="submit" className="btn btn-success" disabled={submitting}>
-            {submitting ? 'Submitting...' : 'Submit Survey'}
+          <button 
+            type="submit" 
+            className={`btn ${viewMode ? 'btn-primary' : 'btn-success'}`} 
+            disabled={submitting}
+          >
+            {viewMode 
+              ? 'Return to Dashboard' 
+              : (submitting ? 'Submitting...' : 'Submit Survey')}
           </button>
+          
+          {viewMode && household.status === 'completed' && (
+            <button
+              type="button"
+              className="btn"
+              style={{ marginLeft: '10px', backgroundColor: 'var(--primary-color)', color: 'white' }}
+              onClick={toggleEditMode}
+            >
+              Edit Survey
+            </button>
+          )}
         </div>
       </form>
     </div>
