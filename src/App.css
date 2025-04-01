@@ -1,3 +1,8 @@
+/* Add this to ensure no underlines on any links */
+a {
+  text-decoration: none !important;
+}
+
 /* Modern application styles */
 :root {
   --primary-color: #4361ee;
