@@ -60,25 +60,46 @@ const HouseholdList = () => {
           </div>
         </div>
       ) : (
-        households.map(household => (
-          <div key={household._id} className="card">
-            <div className="card-header">
-              <h2>{household.familyName}</h2>
-              <span className={`badge badge-${household.status}`}>
-                {household.status.charAt(0).toUpperCase() + household.status.slice(1)}
-              </span>
-            </div>
-            <div className="card-body">
-              <p><strong>Address:</strong> {household.address}</p>
-              {household.dateSurveyed && (
-                <p><strong>Date Surveyed:</strong> {new Date(household.dateSurveyed).toLocaleDateString()}</p>
-              )}
-              <Link to={`/survey/${household._id}`} className="btn btn-primary">
-                {household.status === 'completed' ? 'View Survey' : 'Start Survey'}
-              </Link>
+        <div className="card">
+          <div className="card-body" style={{ padding: 0 }}>
+            <div className="table-responsive">
+              <table className="table table-hover" style={{ margin: 0 }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#f8f9fa' }}>
+                    <th style={{ padding: '12px 15px' }}>Family Name</th>
+                    <th style={{ padding: '12px 15px' }}>Address</th>
+                    <th style={{ padding: '12px 15px', width: '130px' }}>Status</th>
+                    <th style={{ padding: '12px 15px', width: '150px' }}>Date Surveyed</th>
+                    <th style={{ padding: '12px 15px', width: '120px' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {households.map(household => (
+                    <tr key={household._id} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ padding: '10px 15px', fontWeight: '500' }}>{household.familyName}</td>
+                      <td style={{ padding: '10px 15px' }}>{household.address}</td>
+                      <td style={{ padding: '10px 15px' }}>
+                        <span className={`badge badge-${household.status}`} style={{ display: 'inline-block', width: '100px', textAlign: 'center' }}>
+                          {household.status.charAt(0).toUpperCase() + household.status.slice(1)}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px 15px' }}>
+                        {household.dateSurveyed 
+                          ? new Date(household.dateSurveyed).toLocaleDateString() 
+                          : '-'}
+                      </td>
+                      <td style={{ padding: '10px 15px' }}>
+                        <Link to={`/survey/${household._id}`} className="btn btn-primary" style={{ padding: '5px 12px', fontSize: '0.9rem' }}>
+                          {household.status === 'completed' ? 'View' : 'Start'}
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        ))
+        </div>
       )}
     </div>
   );
