@@ -64,7 +64,7 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
-  text-decoration: none;
+  text-decoration: none !important;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -204,6 +204,7 @@ select.form-control {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  text-decoration: none;
 }
 
 .btn-primary {

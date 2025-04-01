@@ -26,7 +26,7 @@ const Navbar = () => {
             className="nav-link" 
             style={{ 
               color: 'white', 
-              textDecoration: 'none',
+              textDecoration: 'none !important',
               opacity: location.pathname === '/' ? 1 : 0.8,
               fontWeight: location.pathname === '/' ? '600' : '400',
               padding: '0.5rem 0.75rem',

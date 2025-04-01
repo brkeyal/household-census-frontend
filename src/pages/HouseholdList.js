@@ -296,7 +296,8 @@ const HouseholdList = () => {
                         style={{ 
                           padding: '6px 12px', 
                           fontSize: '0.9rem',
-                          minWidth: '80px'
+                          minWidth: '80px',
+                          textDecoration: 'none'
                         }}
                       >
                         {household.status === 'completed' ? 'View' : 'Start'}
