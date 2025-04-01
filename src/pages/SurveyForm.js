@@ -6,6 +6,7 @@ const SurveyForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [household, setHousehold] = useState(null);
   
@@ -21,7 +22,7 @@ const SurveyForm = () => {
     environmentalPractices: []
   });
 
-  // Mock housing options
+  // Housing options
   const housingOptions = [
     'Apartment', 
     'House', 
@@ -31,7 +32,7 @@ const SurveyForm = () => {
     'Other'
   ];
 
-  // Mock environmental practices
+  // Environmental practices
   const environmentalPractices = [
     'Recycling',
     'Composting food scraps',
@@ -44,40 +45,35 @@ const SurveyForm = () => {
   useEffect(() => {
     const fetchHousehold = async () => {
       try {
-        // For now, use mock data until backend is ready
-        // const data = await getHousehold(id);
-        const mockData = {
-          id,
-          familyName: id === '1' ? 'Smith' : id === '2' ? 'Johnson' : 'Williams',
-          address: id === '1' ? '123 Main St, Anytown, USA' : 
-                   id === '2' ? '456 Oak Ave, Somewhere, USA' : 
-                   '789 Pine Rd, Nowhere, USA',
-          status: id === '2' ? 'completed' : 'pending',
-          dateSurveyed: id === '2' ? '2025-03-15' : null
-        };
-        
-        setHousehold(mockData);
+        setLoading(true);
+        const data = await getHousehold(id);
+        setHousehold(data);
         
         // If survey is already completed, pre-fill the form
-        if (mockData.status === 'completed') {
+        if (data.status === 'completed' && data.survey) {
+          // Convert database data format to form format
+          const survey = data.survey;
           setFormData({
-            focalPoint: 'John',
-            focalPointImage: null,
-            familyMembers: [
-              { firstName: 'John', lastName: 'Johnson', birthDate: '1980-05-15' },
-              { firstName: 'Jane', lastName: 'Johnson', birthDate: '1982-09-22' }
-            ],
-            carCount: 2,
-            hasPets: 'yes',
-            petCount: 1,
-            housingType: 'House',
-            environmentalPractices: ['Recycling', 'Conserving water']
+            focalPoint: survey.focalPoint || '',
+            focalPointImage: null, // We can't populate file input
+            familyMembers: survey.familyMembers.length > 0 
+              ? survey.familyMembers.map(member => ({
+                  firstName: member.firstName,
+                  lastName: member.lastName,
+                  birthDate: new Date(member.birthDate).toISOString().split('T')[0]
+                }))
+              : [{ firstName: '', lastName: '', birthDate: '' }],
+            carCount: survey.carCount || 0,
+            hasPets: survey.hasPets ? 'yes' : 'no',
+            petCount: survey.petCount || 0,
+            housingType: survey.housingType || '',
+            environmentalPractices: survey.environmentalPractices || []
           });
         }
         
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch household data');
+        setError('Failed to fetch household data: ' + err.message);
         setLoading(false);
         console.error(err);
       }
@@ -163,22 +159,18 @@ const SurveyForm = () => {
     e.preventDefault();
     
     try {
-      setLoading(true);
+      setSubmitting(true);
+      setError(null);
       
-      // In a real app, we would send the data to the backend
-      // const response = await submitSurvey(id, formData);
-      
-      // For now, just simulate a successful submission
-      console.log('Submitted form data:', formData);
+      // Actually submit the data to the backend
+      await submitSurvey(id, formData);
       
       // Redirect to the home page after submission
-      setTimeout(() => {
-        navigate('/');
-      }, 1000);
+      navigate('/');
       
     } catch (err) {
-      setError('Failed to submit survey');
-      setLoading(false);
+      setError('Failed to submit survey: ' + err.message);
+      setSubmitting(false);
       console.error(err);
     }
   };
@@ -198,7 +190,7 @@ const SurveyForm = () => {
           <p><strong>Address:</strong> {household.address}</p>
           <p><strong>Status:</strong> {household.status}</p>
           {household.dateSurveyed && (
-            <p><strong>Date Surveyed:</strong> {household.dateSurveyed}</p>
+            <p><strong>Date Surveyed:</strong> {new Date(household.dateSurveyed).toLocaleDateString()}</p>
           )}
         </div>
       </div>
@@ -237,6 +229,12 @@ const SurveyForm = () => {
                     alt="Focal point preview"
                     style={{ maxWidth: '200px', maxHeight: '200px' }}
                   />
+                </div>
+              )}
+              {household.survey && household.survey.focalPointImage && !formData.focalPointImage && (
+                <div style={{ marginTop: '10px' }}>
+                  <p>Current image: {household.survey.focalPointImage}</p>
+                  {/* Add image path to src if you have an endpoint serving images */}
                 </div>
               )}
             </div>
@@ -434,8 +432,8 @@ const SurveyForm = () => {
         
         {/* Submit Button */}
         <div style={{ marginTop: '20px', marginBottom: '40px' }}>
-          <button type="submit" className="btn btn-success" disabled={loading}>
-            {loading ? 'Submitting...' : 'Submit Survey'}
+          <button type="submit" className="btn btn-success" disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit Survey'}
           </button>
         </div>
       </form>

@@ -10,36 +10,13 @@ const HouseholdList = () => {
   useEffect(() => {
     const fetchHouseholds = async () => {
       try {
-        // For now, we'll use mock data until the backend is ready
-        // const data = await getHouseholds();
-        const mockData = [
-          {
-            id: '1',
-            familyName: 'Smith',
-            address: '123 Main St, Anytown, USA',
-            status: 'pending',
-            dateSurveyed: null
-          },
-          {
-            id: '2',
-            familyName: 'Johnson',
-            address: '456 Oak Ave, Somewhere, USA',
-            status: 'completed',
-            dateSurveyed: '2025-03-15'
-          },
-          {
-            id: '3',
-            familyName: 'Williams',
-            address: '789 Pine Rd, Nowhere, USA',
-            status: 'pending',
-            dateSurveyed: null
-          }
-        ];
-        
-        setHouseholds(mockData);
+        setLoading(true);
+        // Actually fetch data from the backend API
+        const data = await getHouseholds();
+        setHouseholds(data);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch households');
+        setError('Failed to fetch households: ' + err.message);
         setLoading(false);
         console.error(err);
       }
@@ -61,7 +38,7 @@ const HouseholdList = () => {
         <p>No households found.</p>
       ) : (
         households.map(household => (
-          <div key={household.id} className="card">
+          <div key={household._id} className="card">
             <div className="card-header">
               <h2>{household.familyName}</h2>
               <span className={`badge badge-${household.status}`}>
@@ -71,9 +48,9 @@ const HouseholdList = () => {
             <div className="card-body">
               <p><strong>Address:</strong> {household.address}</p>
               {household.dateSurveyed && (
-                <p><strong>Date Surveyed:</strong> {household.dateSurveyed}</p>
+                <p><strong>Date Surveyed:</strong> {new Date(household.dateSurveyed).toLocaleDateString()}</p>
               )}
-              <Link to={`/survey/${household.id}`} className="btn btn-primary">
+              <Link to={`/survey/${household._id}`} className="btn btn-primary">
                 {household.status === 'completed' ? 'View Survey' : 'Start Survey'}
               </Link>
             </div>
