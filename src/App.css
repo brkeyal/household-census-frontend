@@ -341,13 +341,6 @@ select.form-control {
     grid-template-columns: 1fr 1fr;
   }
   
-  /* Adjustments for filters container */
-  .filters-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-  }
-  
   /* Fixed position navbar with proper z-index */
   .navbar {
     position: sticky;
@@ -375,12 +368,6 @@ select.form-control {
 
 /* Specific adjustments for very small screens */
 @media (max-width: 480px) {
-  .filters-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 15px;
-  }
-
   .dashboard-stats {
     grid-template-columns: 1fr;
   }
@@ -413,4 +400,38 @@ select.form-control {
   background-color: rgba(255, 255, 255, 0.15); /* Reduced from 0.2 to 0.15 */
   transform: translateY(-1px); /* Reduced from -2px to -1px */
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+}
+
+.filters-container {
+  max-width: 100%;
+}
+
+
+
+/* This will match the width of the search input to the table */
+@media (min-width: 769px) {
+  .filters-container {
+    width: 100%;
+    max-width: 100%; 
+  }
+}
+
+
+.filters-card {
+  width: auto; /* Remove any fixed width */
+  max-width: 100%; /* Make sure it doesn't exceed container width */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Fix for form control to ensure 100% width */
+.filters-card .form-control {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  max-width: none !important;
+}
+
+/* Ensure the filters container takes up full width */
+.filters-container {
+  width: 100%;
+  max-width: none;
 }

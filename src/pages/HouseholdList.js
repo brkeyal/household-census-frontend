@@ -314,123 +314,199 @@ const HouseholdList = () => {
       )}
 
       {/* Search and filters */}
-      <div className="filters-container" style={{ 
-  display: 'flex', 
-  gap: '80px', 
-  marginBottom: '20px',
-  alignItems: 'center',
-  flexWrap: 'wrap'
-}}>
-  <div style={{ position: 'relative', flex: '1' }}>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }}>
-      <circle cx="11" cy="11" r="8"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-    </svg>
-    <input 
-      type="text" 
-      placeholder="Search by family name or address..." 
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="form-control"
-      style={{ paddingLeft: '40px' }}
-    />
-  </div>
-  
-  <div>
-    <select 
-      value={filterStatus} 
-      onChange={(e) => setFilterStatus(e.target.value)}
-      className="form-control"
-      style={{ minWidth: '150px' }}
-    >
-      <option value="all">All Status</option>
-      <option value="pending">Pending</option>
-      <option value="completed">Completed</option>
-    </select>
-  </div>
-</div>
+
+      <div className="card filters-card">
+        {/* Then place your existing filters-container inside */}
+        <div
+          className="filters-container"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "15px",
+            marginBottom: "10px",
+            marginRight: "10px",
+            marginTop: "10px",
+          }}
+        >
+          <div style={{ position: "relative" }}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                position: "absolute",
+                left: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-light)",
+              }}
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by family name or address..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="form-control"
+              style={{ paddingLeft: "40px" }}
+            />
+          </div>
+
+          <div>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="form-control"
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       {/* Households table */}
       {filteredHouseholds.length === 0 ? (
-  <div className="card" style={{ textAlign: 'center', padding: '30px 20px' }}>
-    <div className="card-body">
-      {searchTerm || filterStatus !== 'all' ? (
-        <>
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-light)', margin: '0 auto 15px auto' }}>
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <h3>No matching households found</h3>
-          <p>Try adjusting your search criteria or filters</p>
-          <button 
-            className="btn btn-primary" 
-            onClick={() => { setSearchTerm(''); setFilterStatus('all'); }}
-            style={{ marginTop: '10px' }}
-          >
-            Clear Filters
-          </button>
-        </>
-      ) : (
-        <>
-          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-light)', margin: '0 auto 15px auto' }}>
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          <h3>No households found</h3>
-          <p>Use the Import button above to add households</p>
-        </>
-      )}
-    </div>
-  </div>
-) : (
-  <div className="card">
-    <div style={{ overflowX: 'auto' }}>
-      <table className="table table-hover" style={{ margin: 0 }}>
-        <thead>
-          <tr>
-            <th style={{ padding: '16px 20px' }}>Family Name</th>
-            <th style={{ padding: '16px 20px' }}>Address</th>
-            <th style={{ padding: '16px 20px', width: '140px' }}>Status</th>
-            <th style={{ padding: '16px 20px', width: '150px' }}>Date Surveyed</th>
-            <th style={{ padding: '16px 20px', width: '100px', textAlign: 'center' }}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredHouseholds.map(household => (
-            <tr key={household._id}>
-              <td style={{ padding: '14px 20px', fontWeight: '500' }}>{household.familyName}</td>
-              <td style={{ padding: '14px 20px' }}>{household.address}</td>
-              <td style={{ padding: '14px 20px' }}>
-                <span className={`badge badge-${household.status}`}>
-                  {household.status === 'completed' ? 'Completed' : 'Pending'}
-                </span>
-              </td>
-              <td style={{ padding: '14px 20px' }}>
-                {household.dateSurveyed 
-                  ? new Date(household.dateSurveyed).toLocaleDateString() 
-                  : '—'}
-              </td>
-              <td style={{ padding: '14px 20px', textAlign: 'center' }}>
-                <Link 
-                  to={`/survey/${household._id}`} 
-                  className="btn btn-primary"
-                  style={{ 
-                    padding: '6px 12px', 
-                    fontSize: '0.9rem',
-                    minWidth: '80px',
-                    textDecoration: 'none'
+        <div
+          className="card"
+          style={{ textAlign: "center", padding: "30px 20px" }}
+        >
+          <div className="card-body">
+            {searchTerm || filterStatus !== "all" ? (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    color: "var(--text-light)",
+                    margin: "0 auto 15px auto",
                   }}
                 >
-                  {household.status === 'completed' ? 'View' : 'Start'}
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <h3>No matching households found</h3>
+                <p>Try adjusting your search criteria or filters</p>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilterStatus("all");
+                  }}
+                  style={{ marginTop: "10px" }}
+                >
+                  Clear Filters
+                </button>
+              </>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    color: "var(--text-light)",
+                    margin: "0 auto 15px auto",
+                  }}
+                >
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <h3>No households found</h3>
+                <p>Use the Import button above to add households</p>
+              </>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="card">
+          <div style={{ overflowX: "auto" }}>
+            <table className="table table-hover" style={{ margin: 0 }}>
+              <thead>
+                <tr>
+                  <th style={{ padding: "16px 20px" }}>Family Name</th>
+                  <th style={{ padding: "16px 20px" }}>Address</th>
+                  <th style={{ padding: "16px 20px", width: "140px" }}>
+                    Status
+                  </th>
+                  <th style={{ padding: "16px 20px", width: "150px" }}>
+                    Date Surveyed
+                  </th>
+                  <th
+                    style={{
+                      padding: "16px 20px",
+                      width: "100px",
+                      textAlign: "center",
+                    }}
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredHouseholds.map((household) => (
+                  <tr key={household._id}>
+                    <td style={{ padding: "14px 20px", fontWeight: "500" }}>
+                      {household.familyName}
+                    </td>
+                    <td style={{ padding: "14px 20px" }}>
+                      {household.address}
+                    </td>
+                    <td style={{ padding: "14px 20px" }}>
+                      <span className={`badge badge-${household.status}`}>
+                        {household.status === "completed"
+                          ? "Completed"
+                          : "Pending"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "14px 20px" }}>
+                      {household.dateSurveyed
+                        ? new Date(household.dateSurveyed).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td style={{ padding: "14px 20px", textAlign: "center" }}>
+                      <Link
+                        to={`/survey/${household._id}`}
+                        className="btn btn-primary"
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: "0.9rem",
+                          minWidth: "80px",
+                          textDecoration: "none",
+                        }}
+                      >
+                        {household.status === "completed" ? "View" : "Start"}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Pagination placeholder - can be implemented with actual data */}
       {filteredHouseholds.length > 0 && (
