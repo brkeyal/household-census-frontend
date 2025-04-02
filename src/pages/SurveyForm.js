@@ -11,6 +11,9 @@ const SurveyForm = () => {
   const [household, setHousehold] = useState(null);
   const [viewMode, setViewMode] = useState(false);
   
+  // Define baseUrl
+  const baseUrl = process.env.REACT_APP_API_URL ? process.env.REACT_APP_API_URL.replace('/api', '') : 'http://localhost:5001';
+
   // Form state
   const [formData, setFormData] = useState({
     focalPoint: '',
@@ -226,6 +229,10 @@ const SurveyForm = () => {
   if (error) return <p>Error: {error}</p>;
   if (!household) return <p>Household not found</p>;
 
+  if (household.survey && household.survey.focalPointImage) {
+    console.log("Image URL:", `${baseUrl}${household.survey.focalPointImage}`);
+  }
+
   return (
     <div>
       <div className="card-header d-flex justify-content-between align-items-center">
@@ -295,7 +302,7 @@ const SurveyForm = () => {
                 household.survey && household.survey.focalPointImage ? (
                   <div>
                     <img 
-                      src={`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/${household.survey.focalPointImage}`}
+                      src={`${baseUrl}${household.survey.focalPointImage}`}
                       alt="Focal point"
                       style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }}
                     />
@@ -322,9 +329,9 @@ const SurveyForm = () => {
                   )}
                   {household.survey && household.survey.focalPointImage && !formData.focalPointImage && (
                     <div style={{ marginTop: '10px' }}>
-                      <p>Current image: {household.survey.focalPointImage}</p>
+                      <p>Current image:</p>
                       <img 
-                        src={`${process.env.REACT_APP_API_URL || 'http://localhost:5001'}/uploads/${household.survey.focalPointImage}`}
+                        src={`${baseUrl}${household.survey.focalPointImage}`}
                         alt="Current focal point"
                         style={{ maxWidth: '200px', maxHeight: '200px' }}
                       />
