@@ -172,7 +172,7 @@ const HouseholdList = () => {
         boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Household Management</h1>
+          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Household Management222</h1>
           <button 
             className="btn btn-primary"
             style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
