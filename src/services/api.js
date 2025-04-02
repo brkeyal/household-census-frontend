@@ -3,6 +3,8 @@ import axios from 'axios';
 // API base URL - using port 5001 to match docker-compose external port
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
+console.log("EYALBTEST API_URL=", API_URL);
+
 // Create an axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
