@@ -302,8 +302,11 @@ const SurveyForm = () => {
                 household.survey && household.survey.focalPointImage ? (
                   <div>
                     <img 
-                      src={`${baseUrl}${household.survey.focalPointImage}`}
-                      alt="Focal point"
+  src={household.survey.focalPointImage.startsWith('http') 
+    ? household.survey.focalPointImage 
+    : `${baseUrl}${household.survey.focalPointImage}`}
+    
+    alt="Focal point"
                       style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px' }}
                     />
                   </div>
@@ -331,8 +334,10 @@ const SurveyForm = () => {
                     <div style={{ marginTop: '10px' }}>
                       <p>Current image:</p>
                       <img 
-                        src={`${baseUrl}${household.survey.focalPointImage}`}
-                        alt="Current focal point"
+  src={household.survey.focalPointImage.startsWith('http') 
+    ? household.survey.focalPointImage 
+    : `${baseUrl}${household.survey.focalPointImage}`}
+                            alt="Current focal point"
                         style={{ maxWidth: '200px', maxHeight: '200px' }}
                       />
                     </div>
