@@ -2,8 +2,7 @@ import axios from 'axios';
 
 // API base URL - using port 5001 to match docker-compose external port
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
-
-console.log("EYALBTEST API_URL=", API_URL);
+console.log("EYALBTEST00 API_URL=", API_URL);
 
 // Create an axios instance with default config
 const api = axios.create({
@@ -16,6 +15,10 @@ const api = axios.create({
 // Household endpoints
 export const getHouseholds = async () => {
   try {
+    console.log("EYALBTEST in getHouseholds");
+    console.log("api=", api);
+    console.log(`EYALBTEST API_URL= ${API_URL}`);
+
     const response = await api.get('/households');
     return response.data;
   } catch (error) {
@@ -57,6 +60,10 @@ export const updateHousehold = async (id, householdData) => {
 // Survey endpoints
 export const submitSurvey = async (id, surveyData) => {
   try {
+    console.log("EYALBTEST in submitSurvey");
+    console.log("api=", api);
+    console.log(`EYALBTEST API_URL= ${API_URL}`);
+
     // For file uploads (like images), we need to use FormData
     let formData;
     
