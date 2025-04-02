@@ -229,8 +229,12 @@ const SurveyForm = () => {
   if (error) return <p>Error: {error}</p>;
   if (!household) return <p>Household not found</p>;
 
-  if (household.survey && household.survey.focalPointImage) {
+  if (household.survey) {
+    console.log("Inside household.survey");
+
+    if (household.survey.focalPointImage) {
     console.log("Image URL:", `${baseUrl}${household.survey.focalPointImage}`);
+    }
   }
 
   return (
