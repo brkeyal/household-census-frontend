@@ -3,6 +3,8 @@ import axios from 'axios';
 // API base URL - using port 5001 to match docker-compose external port
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 console.log("EYALBTEST00 API_URL=", API_URL);
+console.log("API URL being used:", API_URL);
+
 
 // Create an axios instance with default config
 const api = axios.create({
@@ -47,15 +49,15 @@ export const createHousehold = async (householdData) => {
   }
 };
 
-export const updateHousehold = async (id, householdData) => {
-  try {
-    const response = await api.put(`/households/${id}`, householdData);
-    return response.data;
-  } catch (error) {
-    console.error(`Error updating household ${id}:`, error);
-    throw error;
-  }
-};
+// export const updateHousehold = async (id, householdData) => {
+//   try {
+//     const response = await api.put(`/households/${id}`, householdData);
+//     return response.data;
+//   } catch (error) {
+//     console.error(`Error updating household ${id}:`, error);
+//     throw error;
+//   }
+// };
 
 // Survey endpoints
 export const submitSurvey = async (id, surveyData) => {
@@ -65,6 +67,7 @@ export const submitSurvey = async (id, surveyData) => {
     console.log(`EYALBTEST API_URL= ${API_URL}`);
 
     // For file uploads (like images), we need to use FormData
+    // Regular JSON can't include binary file data, FormData is designed to handle multipart requests with both text fields and files
     let formData;
     
     if (surveyData.focalPointImage) {
